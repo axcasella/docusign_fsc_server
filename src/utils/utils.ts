@@ -28,3 +28,8 @@ export const getPasswordHash = async (password: String) => {
     throw Error(err);
   }
 };
+
+export const parseBearerToken = (token: string): string => {
+  const tokenStr = token.split(" ");
+  return tokenStr[1];
+};

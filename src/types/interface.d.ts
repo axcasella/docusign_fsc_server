@@ -15,3 +15,9 @@ export interface CustomRequest extends Request {
 export interface AuthToken {
   user: User;
 }
+
+export interface AzureLoginResponse {
+  data: {
+    access_token: string;
+  };
+}

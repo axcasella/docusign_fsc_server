@@ -7,8 +7,8 @@ import userModel from "../models/user";
 
 const router = express.Router();
 
-// Authentication
-// GET list of orgs
+// Authentication      [done]
+// GET list of orgs    [done]
 // POST certifcate
 // POST evaluation (comments) only visible to FSC, CB, ASI
 // POST feedback visible to CoC; can be called by CoC and CB
@@ -20,7 +20,7 @@ const router = express.Router();
 // GET docusign URL
 
 // @route   GET api/auth
-// @desc    Authenticate user by token
+// @desc    Get logged in user with token
 // @access  Private
 router.get("/", auth, async (req: CustomRequest, res: Response) => {
   try {
@@ -37,7 +37,7 @@ router.get("/", auth, async (req: CustomRequest, res: Response) => {
 
 // @route   POST api/auth
 // @desc    Login user with email and password and return JWT token
-// @access  Private
+// @access  Public
 router.post("/", async (req: CustomRequest, res: Response) => {
   const { email, password } = req.body;
 

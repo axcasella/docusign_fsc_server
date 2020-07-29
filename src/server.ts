@@ -1,8 +1,8 @@
 import express from "express";
-import connectToMongoDB from "./src/middleware/connect";
-import userRouter from "./src/routes/user";
-import authRouter from "./src/routes/auth";
-import orgRouter from "./src/routes/org";
+import connectToMongoDB from "./middleware/connect";
+import userRouter from "./routes/user";
+import authRouter from "./routes/auth";
+import orgRouter from "./routes/org";
 
 const app: express.Application = express();
 connectToMongoDB();

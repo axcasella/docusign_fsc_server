@@ -2,7 +2,7 @@
   "name": "docusign_fsc_server",
   "version": "1.0.0",
   "description": "",
-  "main": "server.ts",
+  "main": "./dist/server.js",
   "scripts": {
     "start": "tsc && node ./dist/server.js",
     "server": "nodemon ./src/server"

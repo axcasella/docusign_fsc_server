@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "start": "node server",
-    "server": "nodemon server"
+    "start": "tsc && node ./dist/server.js",
+    "server": "nodemon ./src/server"
   },
   "keywords": [],
   "author": "Alex Casella",

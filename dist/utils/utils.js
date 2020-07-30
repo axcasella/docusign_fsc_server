@@ -9,14 +9,13 @@ const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const querystring_1 = __importDefault(require("querystring"));
 const config_1 = require("../config/config");
-const tokenExpiration = 360000000000000;
 exports.generateToken = async (id, email) => {
     try {
         const payload = {
             user: { id: id, email: email },
         };
         return await jsonwebtoken_1.default.sign(payload, config_1.jwtSecret, {
-            expiresIn: tokenExpiration,
+            expiresIn: "365d",
         });
     }
     catch (err) {

@@ -13,8 +13,6 @@ import {
 } from "../config/config";
 import { AzureLoginResponse } from "../types/interface";
 
-const tokenExpiration = 360000000000000;
-
 export const generateToken = async (id: String, email: String) => {
   try {
     const payload = {
@@ -22,7 +20,7 @@ export const generateToken = async (id: String, email: String) => {
     };
 
     return await jwt.sign(payload, jwtSecret, {
-      expiresIn: tokenExpiration,
+      expiresIn: "365d",
     });
   } catch (err) {
     console.error(err.message);

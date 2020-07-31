@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
                 errors: [{ msg: "Invalid credentials." }],
             });
         }
-        const token = await utils_1.generateToken(user.id, user.email);
+        const token = await utils_1.generateToken(user.id, user.email, user.role);
         res.json({ token });
     }
     catch (err) {

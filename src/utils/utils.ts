@@ -13,10 +13,14 @@ import {
 } from "../config/config";
 import { AzureLoginResponse } from "../types/interface";
 
-export const generateToken = async (id: String, email: String) => {
+export const generateToken = async (
+  id: String,
+  email: String,
+  role: String
+) => {
   try {
     const payload = {
-      user: { id: id, email: email },
+      user: { id: id, email: email, role: role },
     };
 
     return await jwt.sign(payload, jwtSecret, {
@@ -77,3 +81,10 @@ export const getDynamicsAccessToken = async (): Promise<string> => {
     return err.message;
   }
 };
+
+export enum Role {
+  CB = "CB",
+  Applicant = "Applicant",
+  FSC = "FSC",
+  ASI = "ASI",
+}

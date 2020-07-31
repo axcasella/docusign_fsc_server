@@ -3,16 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDynamicsAccessToken = exports.parseBearerToken = exports.getPasswordHash = exports.generateToken = void 0;
+exports.Role = exports.getDynamicsAccessToken = exports.parseBearerToken = exports.getPasswordHash = exports.generateToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const querystring_1 = __importDefault(require("querystring"));
 const config_1 = require("../config/config");
-exports.generateToken = async (id, email) => {
+exports.generateToken = async (id, email, role) => {
     try {
         const payload = {
-            user: { id: id, email: email },
+            user: { id: id, email: email, role: role },
         };
         return await jsonwebtoken_1.default.sign(payload, config_1.jwtSecret, {
             expiresIn: "365d",
@@ -64,3 +64,10 @@ exports.getDynamicsAccessToken = async () => {
         return err.message;
     }
 };
+var Role;
+(function (Role) {
+    Role["CB"] = "CB";
+    Role["Applicant"] = "Applicant";
+    Role["FSC"] = "FSC";
+    Role["ASI"] = "ASI";
+})(Role = exports.Role || (exports.Role = {}));

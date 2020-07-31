@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/server.js",
-    "server": "nodemon ./src/server"
+    "server": "nodemon ./src/server.ts"
   },
   "keywords": [],
   "author": "Alex Casella",

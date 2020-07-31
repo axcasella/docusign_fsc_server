@@ -56,7 +56,7 @@ router.post("/", async (req: CustomRequest, res: Response) => {
       });
     }
 
-    const token = await generateToken(user.id, user.email);
+    const token = await generateToken(user.id, user.email, user.role);
     res.json({ token });
   } catch (err) {
     console.error(err.message);

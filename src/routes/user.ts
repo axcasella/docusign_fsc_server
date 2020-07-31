@@ -9,7 +9,7 @@ const router = express.Router();
 // @desc    Register user
 // @access  Public
 router.post("/", async (req: CustomRequest, res: Response) => {
-  const { email, name, password } = req.body;
+  const { email, name, password, role } = req.body;
 
   try {
     let user = await userModel.findOne({ email });
@@ -21,6 +21,7 @@ router.post("/", async (req: CustomRequest, res: Response) => {
       email,
       name,
       password,
+      role,
     });
 
     // Encrypt user password
@@ -30,7 +31,11 @@ router.post("/", async (req: CustomRequest, res: Response) => {
     const registeredUser = await user.save();
 
     // Gen token
-    const token = await generateToken(registeredUser.id, registeredUser.email);
+    const token = await generateToken(
+      registeredUser.id,
+      registeredUser.email,
+      registeredUser.role
+    );
 
     res.json({ token });
   } catch (err) {

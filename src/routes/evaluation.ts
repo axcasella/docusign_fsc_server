@@ -7,8 +7,8 @@ import auth from "../middleware/auth";
 
 const router = express.Router();
 
-// @route   GET api/certificate
-// @desc    Get a list of certificates from Dynamics
+// @route   GET api/evaluation
+// @desc    Get a list of evaluations from Dynamics
 // @access  Public
 router.get("/", async (_, res: Response) => {
   try {
@@ -23,7 +23,7 @@ router.get("/", async (_, res: Response) => {
       headers: { Authorization: `Bearer ${token}` },
     };
 
-    const URL = dynamicsURL + "/fsc_fsccertificates";
+    const URL = dynamicsURL + "/fsc_evaluations";
     const response = await axios.get(URL, config);
 
     if (response.data.value) {
@@ -31,7 +31,7 @@ router.get("/", async (_, res: Response) => {
     }
 
     return res.status(404).json({
-      errors: [{ msg: "Failed to get certificates" }],
+      errors: [{ msg: "Failed to get evaluations" }],
     });
   } catch (err) {
     console.error(err.message);
@@ -39,8 +39,8 @@ router.get("/", async (_, res: Response) => {
   }
 });
 
-// @route   POST api/certificate
-// @desc    Add a new certificates to Dynamics
+// @route   POST api/evaluation
+// @desc    Add a new evaluation to Dynamics
 // @access  Public
 router.post("/", auth, async (req: CustomRequest, res: Response) => {
   try {
@@ -62,17 +62,15 @@ router.post("/", auth, async (req: CustomRequest, res: Response) => {
     };
 
     const body = {
-      fsc_cwsourcecountries: "30,83",
-      fsc_numberofsitesgroupmembers: req.body.number_of_group_members,
-      fsc_certificatetype: 2,
-      "fsc_CHOrganization@odata.bind": `/accounts(${req.body.ch_account_id})`,
-      fsc_certificatenumber: req.body.cert_number,
-      "fsc_CBOrganizationId@odata.bind": `/accounts(${req.body.cb_account_id})`,
-      fsc_name: req.body.cert_name,
-      fsc_controlledwoodcode: "W123",
+      fsc_datefrom: req.body.date_from,
+      fsc_dateto: req.body.date_to,
+      "fsc_CertificateId@odata.bind": `/fsc_fsccertificates(${req.body.certificate_id})`,
+      fsc_name: req.body.evaluation_name,
+      fsc_comment: req.body.evaluation_comment,
+      fsc_auditteamleader: req.body.auditor_name,
     };
 
-    const URL = dynamicsURL + "/fsc_fsccertificates";
+    const URL = dynamicsURL + "/fsc_evaluations";
     const response = await axios.post(URL, body, config);
 
     if (response.data.error) {
@@ -81,7 +79,7 @@ router.post("/", auth, async (req: CustomRequest, res: Response) => {
       });
     }
 
-    return res.status(200).json({ msg: "Add certification success" });
+    return res.status(200).json({ msg: "Add evaluation success" });
   } catch (err) {
     console.error(err);
     res.status(500).send(err);

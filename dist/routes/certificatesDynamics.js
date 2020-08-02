@@ -70,14 +70,14 @@ router.post("/", auth_1.default, async (req, res) => {
         const response = await axios_1.default.post(URL, body, config);
         if (response.data.error) {
             return res.status(404).json({
-                errors: [{ msg: "Failed to get certificates" }],
+                errors: [{ msg: response.data.error }],
             });
         }
         return res.status(200).json({ msg: "Add certification success" });
     }
     catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error.");
+        console.error(err);
+        res.status(500).send(err);
     }
 });
 exports.default = router;

@@ -32,6 +32,7 @@ router.post("/", async (req: CustomRequest, res: Response) => {
 
     // Gen token
     const token = await generateToken(
+      registeredUser.name,
       registeredUser.id,
       registeredUser.email,
       registeredUser.role

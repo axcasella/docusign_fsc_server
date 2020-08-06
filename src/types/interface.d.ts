@@ -23,3 +23,9 @@ export interface AzureLoginResponse {
     access_token: string;
   };
 }
+
+export interface Comment extends mongoose.Document {
+  certificate: string;
+  author: string;
+  comment: string;
+}

@@ -4,6 +4,7 @@ import { dynamicsURL } from "../config/config";
 import { CustomRequest } from "../types/interface";
 import { getDynamicsAccessToken, Role } from "../utils/utils";
 import auth from "../middleware/auth";
+import commentModel from "../models/comment";
 
 const router = express.Router();
 
@@ -138,6 +139,76 @@ router.post(
     } catch (err) {
       console.error(err);
       res.status(500).send(err);
+    }
+  }
+);
+
+// @route   POST api/certificate/:certificate_id/add_comment
+// @desc    Add a comment to a certificate
+// @access  Private; only used by auditor and CoC company
+router.post(
+  "/:certificate_id/add_comment",
+  auth,
+  async (req: CustomRequest, res: Response) => {
+    const { comment } = req.body;
+
+    if (!comment) {
+      return res.status(400).json({
+        errors: [{ msg: "Comment is empty" }],
+      });
+    }
+
+    if (
+      !req.user ||
+      (req.user.role !== Role.CB && req.user.role !== Role.Applicant)
+    ) {
+      return res.status(401).json({
+        errors: [{ msg: "Only CB or CoC applicant can add a comment" }],
+      });
+    }
+
+    try {
+      let newComment = new commentModel({
+        comment,
+        author: req.user.name,
+        certificate: req.params.certificate_id,
+      });
+
+      // Save to DB
+      const addedComment = await newComment.save();
+
+      res.json({ msg: "Comment added successfully", comment: addedComment });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error.");
+    }
+  }
+);
+
+// @route   POST api/certificate/:certificate_id/comments
+// @desc    Get all comments of a certificate
+// @access  Private; only used by auditor and CoC company
+router.get(
+  "/:certificate_id/comments",
+  auth,
+  async (req: CustomRequest, res: Response) => {
+    try {
+      if (
+        !req.user ||
+        (req.user.role !== Role.CB && req.user.role !== Role.Applicant)
+      ) {
+        return res.status(401).json({
+          errors: [{ msg: "Only CB or CoC applicant can get comments" }],
+        });
+      }
+
+      const comments = await commentModel
+        .find({ certificate: req.params.certificate_id })
+        .populate("comments");
+      res.json(comments);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error.");
     }
   }
 );

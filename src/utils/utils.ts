@@ -15,12 +15,13 @@ import { AzureLoginResponse } from "../types/interface";
 
 export const generateToken = async (
   id: String,
+  name: String,
   email: String,
   role: String
 ) => {
   try {
     const payload = {
-      user: { id: id, email: email, role: role },
+      user: { id: id, email: email, name: name, role: role },
     };
 
     return await jwt.sign(payload, jwtSecret, {

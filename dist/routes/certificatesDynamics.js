@@ -159,12 +159,6 @@ router.post("/:certificate_id/add_comment", auth_1.default, async (req, res) => 
 // @access  Private; only used by auditor and CoC company
 router.get("/:certificate_id/comments", auth_1.default, async (req, res) => {
     try {
-        if (!req.user ||
-            (req.user.role !== utils_1.Role.CB && req.user.role !== utils_1.Role.Applicant)) {
-            return res.status(401).json({
-                errors: [{ msg: "Only CB or CoC applicant can get comments" }],
-            });
-        }
         const comments = await comment_1.default
             .find({ certificate: req.params.certificate_id })
             .populate("comments");

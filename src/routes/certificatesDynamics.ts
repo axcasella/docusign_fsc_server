@@ -193,15 +193,6 @@ router.get(
   auth,
   async (req: CustomRequest, res: Response) => {
     try {
-      if (
-        !req.user ||
-        (req.user.role !== Role.CB && req.user.role !== Role.Applicant)
-      ) {
-        return res.status(401).json({
-          errors: [{ msg: "Only CB or CoC applicant can get comments" }],
-        });
-      }
-
       const comments = await commentModel
         .find({ certificate: req.params.certificate_id })
         .populate("comments");

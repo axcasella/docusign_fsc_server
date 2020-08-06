@@ -88,4 +88,58 @@ router.post("/", auth, async (req: CustomRequest, res: Response) => {
   }
 });
 
+// @route   POST api/certificate/:certificate_id/issue
+// @desc    Update an existing certificate's status to "issued" in Dynamics
+// @access  Private
+router.post(
+  "/:certificate_id/issue",
+  auth,
+  async (req: CustomRequest, res: Response) => {
+    try {
+      if (req.user && req.user.role !== Role.CB) {
+        return res.status(401).json({
+          errors: [
+            {
+              msg:
+                "Only CB auditors can update a certificate's status to issued",
+            },
+          ],
+        });
+      }
+
+      const token = await getDynamicsAccessToken();
+      if (!token) {
+        return res.status(400).json({
+          errors: [{ msg: "Failed to get access token from MS Dynamics" }],
+        });
+      }
+
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      const body = {
+        fsc_certificatestatus: 2,
+      };
+
+      const URL =
+        dynamicsURL + "/fsc_fsccertificates(" + req.params.certificate_id + ")";
+      const response = await axios.patch(URL, body, config);
+
+      if (response.data.error) {
+        return res.status(404).json({
+          errors: [{ msg: response.data.error }],
+        });
+      }
+
+      return res
+        .status(200)
+        .json({ msg: "Update certification status to issued success" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send(err);
+    }
+  }
+);
+
 export default router;

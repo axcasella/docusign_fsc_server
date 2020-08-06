@@ -9,10 +9,10 @@ const axios_1 = __importDefault(require("axios"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const querystring_1 = __importDefault(require("querystring"));
 const config_1 = require("../config/config");
-exports.generateToken = async (id, email, role) => {
+exports.generateToken = async (id, name, email, role) => {
     try {
         const payload = {
-            user: { id: id, email: email, role: role },
+            user: { id: id, email: email, name: name, role: role },
         };
         return await jsonwebtoken_1.default.sign(payload, config_1.jwtSecret, {
             expiresIn: "365d",

@@ -8,6 +8,7 @@ const axios_1 = __importDefault(require("axios"));
 const config_1 = require("../config/config");
 const utils_1 = require("../utils/utils");
 const auth_1 = __importDefault(require("../middleware/auth"));
+const comment_1 = __importDefault(require("../models/comment"));
 const router = express_1.default.Router();
 // @route   GET api/certificate
 // @desc    Get a list of certificates from Dynamics
@@ -78,6 +79,100 @@ router.post("/", auth_1.default, async (req, res) => {
     catch (err) {
         console.error(err);
         res.status(500).send(err);
+    }
+});
+// @route   POST api/certificate/:certificate_id/issue
+// @desc    Update an existing certificate's status to "issued" in Dynamics
+// @access  Private
+router.post("/:certificate_id/issue", auth_1.default, async (req, res) => {
+    try {
+        if (req.user && req.user.role !== utils_1.Role.CB) {
+            return res.status(401).json({
+                errors: [
+                    {
+                        msg: "Only CB auditors can update a certificate's status to issued",
+                    },
+                ],
+            });
+        }
+        const token = await utils_1.getDynamicsAccessToken();
+        if (!token) {
+            return res.status(400).json({
+                errors: [{ msg: "Failed to get access token from MS Dynamics" }],
+            });
+        }
+        const config = {
+            headers: { Authorization: `Bearer ${token}` },
+        };
+        const body = {
+            fsc_certificatestatus: 2,
+        };
+        const URL = config_1.dynamicsURL + "/fsc_fsccertificates(" + req.params.certificate_id + ")";
+        const response = await axios_1.default.patch(URL, body, config);
+        if (response.data.error) {
+            return res.status(404).json({
+                errors: [{ msg: response.data.error }],
+            });
+        }
+        return res
+            .status(200)
+            .json({ msg: "Update certification status to issued success" });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+});
+// @route   POST api/certificate/:certificate_id/add_comment
+// @desc    Add a comment to a certificate
+// @access  Private; only used by auditor and CoC company
+router.post("/:certificate_id/add_comment", auth_1.default, async (req, res) => {
+    const { comment } = req.body;
+    if (!comment) {
+        return res.status(400).json({
+            errors: [{ msg: "Comment is empty" }],
+        });
+    }
+    if (!req.user ||
+        (req.user.role !== utils_1.Role.CB && req.user.role !== utils_1.Role.Applicant)) {
+        return res.status(401).json({
+            errors: [{ msg: "Only CB or CoC applicant can add a comment" }],
+        });
+    }
+    try {
+        let newComment = new comment_1.default({
+            comment,
+            author: req.user.name,
+            certificate: req.params.certificate_id,
+        });
+        // Save to DB
+        const addedComment = await newComment.save();
+        res.json({ msg: "Comment added successfully", comment: addedComment });
+    }
+    catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error.");
+    }
+});
+// @route   POST api/certificate/:certificate_id/comments
+// @desc    Get all comments of a certificate
+// @access  Private; only used by auditor and CoC company
+router.get("/:certificate_id/comments", auth_1.default, async (req, res) => {
+    try {
+        if (!req.user ||
+            (req.user.role !== utils_1.Role.CB && req.user.role !== utils_1.Role.Applicant)) {
+            return res.status(401).json({
+                errors: [{ msg: "Only CB or CoC applicant can get comments" }],
+            });
+        }
+        const comments = await comment_1.default
+            .find({ certificate: req.params.certificate_id })
+            .populate("comments");
+        res.json(comments);
+    }
+    catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error.");
     }
 });
 exports.default = router;

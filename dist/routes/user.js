@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
         // Save to DB
         const registeredUser = await user.save();
         // Gen token
-        const token = await utils_1.generateToken(registeredUser.id, registeredUser.email, registeredUser.role);
+        const token = await utils_1.generateToken(registeredUser.name, registeredUser.id, registeredUser.email, registeredUser.role);
         res.json({ token });
     }
     catch (err) {

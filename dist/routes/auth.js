@@ -14,11 +14,9 @@ const router = express_1.default.Router();
 // POST certifcate                                               [done]
 // GET all certificates                                          [done]
 // POST evaluation (comments) only visible to FSC, CB, ASI       [done]
-// POST feedback visible to CoC; can be called by CoC and CB
-// GET all feedbacks
-//
-// PUT certifcate status
-// PUT evaluation
+// POST feedback visible to CoC; can be called by CoC and CB     [done]
+// GET all feedbacks visible to CoC for a certificate            [done]
+// PUT certifcate status                                         [done]
 // GET blockchain certificates
 // GET docusign URL
 // @route   GET api/auth
@@ -55,7 +53,7 @@ router.post("/", async (req, res) => {
                 errors: [{ msg: "Invalid credentials." }],
             });
         }
-        const token = await utils_1.generateToken(user.id, user.email, user.role);
+        const token = await utils_1.generateToken(user.id, user.name, user.email, user.role);
         res.json({ token });
     }
     catch (err) {

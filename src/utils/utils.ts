@@ -11,7 +11,7 @@ import {
   password,
   client_secret,
 } from "../config/config";
-import { AzureLoginResponse } from "../types/interface";
+import { LoginResponse } from "../types/interface";
 
 export const generateToken = async (
   id: String,
@@ -70,7 +70,7 @@ export const getDynamicsAccessToken = async (): Promise<string> => {
       azureADURL,
       querystring.stringify(body),
       config
-    )) as AzureLoginResponse;
+    )) as LoginResponse;
 
     if (response.data.access_token) {
       return response.data.access_token;

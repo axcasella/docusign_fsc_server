@@ -18,7 +18,7 @@ export interface AuthToken {
   user: User;
 }
 
-export interface AzureLoginResponse {
+export interface LoginResponse {
   data: {
     access_token: string;
   };

@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const docusign_1 = require("../utils/docusign");
 const router = express_1.default.Router();
+// @route   GET api/docusign/get_access_token
+// @desc    Get access OAuth token used by other APIs
+// @access  Private
+router.get("/token", docusign_1.getAccessToken);
 // @route   GET api/docusign/final_certificate
 // @desc    Get docusign embedded signing URL for the final certificate
 // @access  Private

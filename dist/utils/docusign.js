@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signAgreementCeremony = exports.signFinalCertificateCeremony = void 0;
+exports.signAgreementCeremony = exports.signFinalCertificateCeremony = exports.getAccessToken = void 0;
 // @ts-ignore types declaration
 const docusign_esign_1 = __importDefault(require("docusign-esign"));
 const path_1 = __importDefault(require("path"));
@@ -14,10 +14,16 @@ const apiAccountID = "3872749a-589f-44f0-a92d-c737720624ac";
 const fileName1 = "FSC_Certificate_Template_Hack.pdf";
 const fileName2 = "FSC_TrademarlLicenseAgreement_Hackathon_20200.pdf";
 const baseURL = "https://demo.docusign.net/restapi";
-const BASE64_COMBINATION_OF_INTEGRATOR_AND_SECRET_KEYS = "MDhlY2I5MzMtMTNlMy00NWU3LWFlZDMtMDkwNDE4NDg4ZGI4ODViYzMzOTUtMDNhZS00ZDMxLTk5OGUtY2I4ODZjYWY3NjRk";
+const BASE64_COMBINATION_OF_INTEGRATOR_AND_SECRET_KEYS = "MDhlY2I5MzMtMTNlMy00NWU3LWFlZDMtMDkwNDE4NDg4ZGI4Ojg1YmMzMzk1LTAzYWUtNGQzMS05OThlLWNiODg2Y2FmNzY0ZA==";
 const tokenURL = "https://account-d.docusign.com/oauth/token";
 const clientUserId = "signer123";
-const getAccessToken = async (code) => {
+exports.getAccessToken = async (req, res) => {
+    const code = req.header("code");
+    if (!code) {
+        return res.status(404).json({
+            errors: [{ msg: "Missing code in request header" }],
+        });
+    }
     try {
         const body = {
             grant_type: "authorization_code",
@@ -31,21 +37,24 @@ const getAccessToken = async (code) => {
         };
         const response = (await axios_1.default.post(tokenURL, querystring_1.default.stringify(body), config));
         if (response.data.access_token) {
-            return response.data.access_token;
+            return res.json({ token: response.data.access_token });
         }
-        return;
+        return res
+            .status(401)
+            .json({ msg: "Failed to get access token with provided code" });
     }
     catch (err) {
         console.error(err.message);
-        return err.message;
+        return res.status(500).send(err.message);
     }
 };
 exports.signFinalCertificateCeremony = async (req, res) => {
-    const { code, signerEmail, signerName } = req.body;
-    if (!code) {
-        return res.status(404).json({
-            errors: [{ msg: "Missing code" }],
-        });
+    const { signerEmail, signerName } = req.body;
+    const bearerToken = req.header("authorization");
+    if (!bearerToken) {
+        return res
+            .status(401)
+            .json({ msg: "No bearer token found, authorization denied." });
     }
     if (!signerEmail) {
         return res.status(404).json({
@@ -57,14 +66,8 @@ exports.signFinalCertificateCeremony = async (req, res) => {
             errors: [{ msg: "Missing signer name" }],
         });
     }
-    const accessToken = await getAccessToken(code);
-    if (!accessToken) {
-        return res.status(404).json({
-            errors: [{ msg: "Failed to get access token" }],
-        });
-    }
     try {
-        const url = await getEmbeddedCeremony(accessToken, signerEmail, signerName, fileName1);
+        const url = await getEmbeddedCeremony(bearerToken, signerEmail, signerName, fileName1);
         return res.json({ url: url });
     }
     catch (err) {
@@ -73,11 +76,12 @@ exports.signFinalCertificateCeremony = async (req, res) => {
     }
 };
 exports.signAgreementCeremony = async (req, res) => {
-    const { code, signerEmail, signerName } = req.body;
-    if (!code) {
-        return res.status(404).json({
-            errors: [{ msg: "Missing code" }],
-        });
+    const { signerEmail, signerName } = req.body;
+    const bearerToken = req.header("authorization");
+    if (!bearerToken) {
+        return res
+            .status(401)
+            .json({ msg: "No bearer token found, authorization denied." });
     }
     if (!signerEmail) {
         return res.status(404).json({
@@ -89,14 +93,8 @@ exports.signAgreementCeremony = async (req, res) => {
             errors: [{ msg: "Missing signer name" }],
         });
     }
-    const accessToken = await getAccessToken(code);
-    if (!accessToken) {
-        return res.status(404).json({
-            errors: [{ msg: "Failed to get access token" }],
-        });
-    }
     try {
-        const url = await getEmbeddedCeremony(accessToken, signerEmail, signerName, fileName2);
+        const url = await getEmbeddedCeremony(bearerToken, signerEmail, signerName, fileName2);
         return res.json({ url: url });
     }
     catch (err) {
@@ -104,7 +102,7 @@ exports.signAgreementCeremony = async (req, res) => {
         res.status(500).send("Failed to get docusign embeded signing ceremony");
     }
 };
-const getEmbeddedCeremony = async (accessToken, signerEmail, signerName, filename) => {
+const getEmbeddedCeremony = async (bearerToken, signerEmail, signerName, filename) => {
     const authenticationMethod = "None";
     const envDef = new docusign_esign_1.default.EnvelopeDefinition();
     envDef.emailSubject =
@@ -163,7 +161,7 @@ const getEmbeddedCeremony = async (accessToken, signerEmail, signerName, filenam
     envDef.status = "sent";
     const apiClient = new docusign_esign_1.default.ApiClient();
     apiClient.setBasePath(baseURL);
-    apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+    apiClient.addDefaultHeader("Authorization", bearerToken);
     // Set the DocuSign SDK components to use the apiClient object
     docusign_esign_1.default.Configuration.default.setDefaultApiClient(apiClient);
     let envelopesApi = new docusign_esign_1.default.EnvelopesApi();

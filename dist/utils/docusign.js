@@ -36,8 +36,8 @@ exports.getAccessToken = async (req, res) => {
             },
         };
         const response = (await axios_1.default.post(tokenURL, querystring_1.default.stringify(body), config));
-        if (response.data.access_token) {
-            return res.json({ token: response.data.access_token });
+        if (response.data) {
+            return res.json({ data: response.data });
         }
         return res
             .status(401)

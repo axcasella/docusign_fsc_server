@@ -44,8 +44,8 @@ export const getAccessToken = async (req: Request, res: Response) => {
       config
     )) as LoginResponse;
 
-    if (response.data.access_token) {
-      return res.json({ token: response.data.access_token });
+    if (response.data) {
+      return res.json({ data: response.data });
     }
 
     return res

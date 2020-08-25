@@ -10,12 +10,12 @@ const router = express_1.default.Router();
 // @desc    Get access OAuth token used by other APIs
 // @access  Private
 router.get("/token", docusign_1.getAccessToken);
-// @route   GET api/docusign/final_certificate
+// @route   POST api/docusign/final_certificate
 // @desc    Get docusign embedded signing URL for the final certificate
 // @access  Private
-router.get("/final_certificate", docusign_1.signFinalCertificateCeremony);
-// @route   GET api/docusign/agreement
+router.post("/final_certificate", docusign_1.signFinalCertificateCeremony);
+// @route   POST api/docusign/agreement
 // @desc    Get docusign embedded signing URL for the license agreement
 // @access  Private
-router.get("/agreement", docusign_1.signAgreementCeremony);
+router.post("/agreement", docusign_1.signAgreementCeremony);
 exports.default = router;

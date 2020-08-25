@@ -12,14 +12,14 @@ const router = express.Router();
 // @access  Private
 router.get("/token", getAccessToken);
 
-// @route   GET api/docusign/final_certificate
+// @route   POST api/docusign/final_certificate
 // @desc    Get docusign embedded signing URL for the final certificate
 // @access  Private
-router.get("/final_certificate", signFinalCertificateCeremony);
+router.post("/final_certificate", signFinalCertificateCeremony);
 
-// @route   GET api/docusign/agreement
+// @route   POST api/docusign/agreement
 // @desc    Get docusign embedded signing URL for the license agreement
 // @access  Private
-router.get("/agreement", signAgreementCeremony);
+router.post("/agreement", signAgreementCeremony);
 
 export default router;

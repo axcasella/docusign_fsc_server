@@ -14,3 +14,6 @@ export const client_id = "ae51fcee-318b-4178-9c60-627bef57f331";
 export const username = "axc@greenblocks.onmicrosoft.com";
 export const password = "etf67sqg@!pk";
 export const client_secret = "2q4-g3U3LE7c8nDIjS7~~.wL~a.t4ltFHq";
+// Blockchain
+export const enable_blockchain = false;
+export const blockchain_server_url = "";

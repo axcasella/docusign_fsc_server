@@ -5,6 +5,7 @@ import { CustomRequest } from "../types/interface";
 import { getDynamicsAccessToken, Role } from "../utils/utils";
 import auth from "../middleware/auth";
 import commentModel from "../models/comment";
+import { enable_blockchain, blockchain_server_url } from "../config/config";
 
 const router = express.Router();
 
@@ -35,7 +36,6 @@ router.get("/", async (_, res: Response) => {
       errors: [{ msg: "Failed to get certificates" }],
     });
   } catch (err) {
-    console.error(err.message);
     res.status(500).send("Server error.");
   }
 });
@@ -82,9 +82,27 @@ router.post("/", auth, async (req: CustomRequest, res: Response) => {
       });
     }
 
+    // Add to blockchain ledger
+    if (enable_blockchain) {
+      const bcURL = blockchain_server_url + "/api/blockchain/certificates";
+      let bcReqBody = {
+        certificateID: req.body.cert_number,
+        type: "Multisite certificate",
+        company: req.body.ch_account_id,
+        issuer: req.body.cb_account_id,
+      };
+
+      const response = await axios.post(bcURL, bcReqBody);
+
+      if (response.data.error) {
+        return res.status(404).json({
+          errors: [{ msg: response.data.error }],
+        });
+      }
+    }
+
     return res.status(200).json({ msg: "Add certification success" });
   } catch (err) {
-    console.error(err);
     res.status(500).send(err);
   }
 });
@@ -119,7 +137,7 @@ router.post(
         headers: { Authorization: `Bearer ${token}` },
       };
 
-      const body = {
+      let body = {
         fsc_certificatestatus: 2,
       };
 
@@ -133,11 +151,26 @@ router.post(
         });
       }
 
+      // Update certificate status in blockchain ledger
+      if (enable_blockchain) {
+        const bcURL =
+          blockchain_server_url +
+          "/api/blockchain/certificates/" +
+          req.body.fsc_certificatenumber +
+          "/issue";
+        const response = await axios.post(bcURL);
+
+        if (response.data.error) {
+          return res.status(404).json({
+            errors: [{ msg: response.data.error }],
+          });
+        }
+      }
+
       return res
         .status(200)
         .json({ msg: "Update certification status to issued success" });
     } catch (err) {
-      console.error(err);
       res.status(500).send(err);
     }
   }
@@ -179,7 +212,6 @@ router.post(
 
       res.json({ msg: "Comment added successfully", comment: addedComment });
     } catch (err) {
-      console.error(err.message);
       res.status(500).send("Server error.");
     }
   }
@@ -198,7 +230,6 @@ router.get(
         .populate("comments");
       res.json(comments);
     } catch (err) {
-      console.error(err.message);
       res.status(500).send("Server error.");
     }
   }

@@ -9,6 +9,7 @@ const config_1 = require("../config/config");
 const utils_1 = require("../utils/utils");
 const auth_1 = __importDefault(require("../middleware/auth"));
 const comment_1 = __importDefault(require("../models/comment"));
+const config_2 = require("../config/config");
 const router = express_1.default.Router();
 // @route   GET api/certificate
 // @desc    Get a list of certificates from Dynamics
@@ -34,7 +35,6 @@ router.get("/", async (_, res) => {
         });
     }
     catch (err) {
-        console.error(err.message);
         res.status(500).send("Server error.");
     }
 });
@@ -74,10 +74,25 @@ router.post("/", auth_1.default, async (req, res) => {
                 errors: [{ msg: response.data.error }],
             });
         }
+        // Add to blockchain ledger
+        if (config_2.enable_blockchain) {
+            const bcURL = config_2.blockchain_server_url + "/api/blockchain/certificates";
+            let bcReqBody = {
+                certificateID: req.body.cert_number,
+                type: "Multisite certificate",
+                company: req.body.ch_account_id,
+                issuer: req.body.cb_account_id,
+            };
+            const response = await axios_1.default.post(bcURL, bcReqBody);
+            if (response.data.error) {
+                return res.status(404).json({
+                    errors: [{ msg: response.data.error }],
+                });
+            }
+        }
         return res.status(200).json({ msg: "Add certification success" });
     }
     catch (err) {
-        console.error(err);
         res.status(500).send(err);
     }
 });
@@ -104,7 +119,7 @@ router.post("/:certificate_id/issue", auth_1.default, async (req, res) => {
         const config = {
             headers: { Authorization: `Bearer ${token}` },
         };
-        const body = {
+        let body = {
             fsc_certificatestatus: 2,
         };
         const URL = config_1.dynamicsURL + "/fsc_fsccertificates(" + req.params.certificate_id + ")";
@@ -114,12 +129,24 @@ router.post("/:certificate_id/issue", auth_1.default, async (req, res) => {
                 errors: [{ msg: response.data.error }],
             });
         }
+        // Update certificate status in blockchain ledger
+        if (config_2.enable_blockchain) {
+            const bcURL = config_2.blockchain_server_url +
+                "/api/blockchain/certificates/" +
+                req.body.fsc_certificatenumber +
+                "/issue";
+            const response = await axios_1.default.post(bcURL);
+            if (response.data.error) {
+                return res.status(404).json({
+                    errors: [{ msg: response.data.error }],
+                });
+            }
+        }
         return res
             .status(200)
             .json({ msg: "Update certification status to issued success" });
     }
     catch (err) {
-        console.error(err);
         res.status(500).send(err);
     }
 });
@@ -150,7 +177,6 @@ router.post("/:certificate_id/add_comment", auth_1.default, async (req, res) => 
         res.json({ msg: "Comment added successfully", comment: addedComment });
     }
     catch (err) {
-        console.error(err.message);
         res.status(500).send("Server error.");
     }
 });
@@ -165,7 +191,6 @@ router.get("/:certificate_id/comments", auth_1.default, async (req, res) => {
         res.json(comments);
     }
     catch (err) {
-        console.error(err.message);
         res.status(500).send("Server error.");
     }
 });

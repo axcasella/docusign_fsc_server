@@ -7,6 +7,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const config_1 = require("../config/config");
 const connectToMongoDB = async () => {
     try {
+        console.log(config_1.mongoDBUrl);
         await mongoose_1.default.connect(config_1.mongoDBUrl, {
             useNewUrlParser: true,
             useUnifiedTopology: true,

@@ -81,7 +81,7 @@ Get embedded signing URL for FSC Certificate Template
 POST api/docusign/final_certificate
 ```
 
-We have also added an authentication middleware for role based access control of our APIs. The following is achieved:
+We have also added an authentication middleware for role based access control of our APIs. Roles can be "CB", "FSC", "ASI", or "Applicant". The following is achieved:
 
 - Only CB auditor can add an evaluation comment. These evaluations are only visible to CB, FSC, and ASI.
 - Only CB auditor can issue a certificate and update a certificate.

@@ -4,11 +4,11 @@
 
 ## Team members:
 
-**Alex Casella**: Team captain, architect, backend & blockchain developer
+**Alex Casella** (axc@bu.edu): Team captain, architect, backend & blockchain developer
 
-**Vidhu Bhatnagar**: Frontend developer
+**Vidhu Bhatnagar** (vidhu@bu.edu): Frontend developer
 
-**Iriana Rodriguez**: Storyteller and researcher
+**Iriana Rodriguez** (irianar@bu.edu): Storyteller and researcher
 
 ## Overview
 
@@ -189,3 +189,35 @@ We are proud to have gotten this far in our spare time in 2 months. However, the
 Thank you Docusign and FSC for the opportunity to learn, give back, and compete in this hackathon.
 
 :deciduous_tree::deciduous_tree::deciduous_tree::deciduous_tree::deciduous_tree:
+
+## Try it out
+
+Our UI is live at: http://docusignfsc.s3-website-us-east-1.amazonaws.com/login
+
+Auditor:
+Email (case sensitive): cb@cb.org
+Password: password
+
+CoC company representative:
+Email (case sensitive): Applicant@tree.org
+Password: password
+
+### Local environment
+
+To start the UI:
+
+```
+cd frontend_app
+tsc
+npm install
+npm run start
+```
+
+To start the backend server
+
+```
+npm install
+npm run server
+```
+
+Checkout our demo video on [Youtube](https://www.youtube.com/watch?v=NoS7zAkZ2Gc&feature=youtu.be)!

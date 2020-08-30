@@ -42,47 +42,8 @@ export class CertificateContract extends Contract {
     certificate.company = company;
     certificate.issuer = issuer;
     certificate.issuanceDate = issuanceDate;
-    certificate.status = "Applicant";
-    const buffer = Buffer.from(JSON.stringify(certificate));
-    await ctx.stub.putState(certificateID, buffer);
-  }
-
-  @Transaction(false)
-  @Returns("Certificate")
-  public async readCertificate(
-    ctx: Context,
-    certificateID: string
-  ): Promise<Certificate> {
-    const exists = await this.certificateExists(ctx, certificateID);
-    if (!exists) {
-      throw new Error(`The certificate ${certificateID} does not exist`);
-    }
-    const buffer = await ctx.stub.getState(certificateID);
-    const certificate = JSON.parse(buffer.toString()) as Certificate;
-    return certificate;
-  }
-
-  @Transaction()
-  public async issueCertificate(
-    ctx: Context,
-    certificateID: string
-  ): Promise<void> {
-    let certificate = await this.readCertificate(ctx, certificateID);
     certificate.status = "Issued";
-
     const buffer = Buffer.from(JSON.stringify(certificate));
     await ctx.stub.putState(certificateID, buffer);
-  }
-
-  @Transaction()
-  public async deleteCertificate(
-    ctx: Context,
-    certificateID: string
-  ): Promise<void> {
-    const exists = await this.certificateExists(ctx, certificateID);
-    if (!exists) {
-      throw new Error(`The certificate ${certificateID} does not exist`);
-    }
-    await ctx.stub.deleteState(certificateID);
   }
 }

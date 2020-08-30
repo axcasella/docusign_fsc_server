@@ -4,7 +4,7 @@
 
 ## Team members:
 
-**Alex Casella**: Team captain, backend & blockchain developer
+**Alex Casella**: Team captain, architect, backend & blockchain developer
 
 **Vidhu Bhatnagar**: Frontend developer
 
@@ -24,13 +24,56 @@ From the forest to the end customer, our app can be used by all companies in its
 
 ![Technical architecture diagram](src/files/TechnicalArchitecture.png)
 
-## How we built it
+## Frontend UI
 
-### Frontend UI
+The frontend UI is built with React, Redux, and Ant Design. When a user first logs in, they enter a guided walkthrough of the certification process. Our interface supports multiple user roles (Applicant, CB, FSC, ASI). Each roles correspond to a different walkthrough experience tailored based on their permissions and needs. Data is persisted through the backend REST API server.
 
-The frontend UI is built with React, Redux, and Ant Design.
+### Authentication and Authorization
 
-### Backend server
+User login is done by exchanging their credentials for a JWT token from the backend server. This JWT token is signed by an asymmetric key and encodes information including user's email and role.
+
+```
+{
+  "user": {
+    "id": "5f48737f8968a481770ab4df",
+    "email": "cb@cb.org",
+    "name": "Tom",
+    "role": "CB"
+  },
+  "iat": 1598755434,
+  "exp": 1630291434
+}
+```
+
+The token is decoded to facilitate Role Based Access Control.
+
+### Docusign and OAuth2
+
+OAuth2 is used to make request to Docusign on behalf of a user. This is used to generate embedded signing ceremonies.
+
+OAuth code and token exchange is facilitated by proxying requests through the backend server. When the token is received by the frontend, it is saved in the browser's local storage and refreshed when it's expired.
+
+### Google Drive Integration
+
+A google drive folder is used to upload evidences and observations which are then evaluated by the auditor. This folder is embedded and integrated in the UI's observation step.
+
+### Evaluations
+
+Evaluations allow the auditor to comment on observations. This data is persisted in Dynamics' evaluation schema. Every evaluation has a date, subject (observation) and the related certificate which the observation is part of.
+
+CRUD operations on the evaluations schema are proxied through the backend server.
+
+![Observations](src/files/observations.png)
+
+### Live Chat
+
+Our live chat feature allows different parties to communicate with each other in a unified chat interface. This allows conversations to be scoped to the certification in progress.
+
+This is implemented using long polling which is what allows real time chat to take place. Periodically the UI polls the backend to check if any new messages are available. The chat component keeps track of whether a message was sent by the current user or by a different user, and uses this information to visually distinguish different messages.
+
+![Live Chat](src/files/live_chat.png)
+
+## Backend server
 
 Our backend server is built with Node.js and Express. We have written our server side code in Typescript for the ability to do static type checking and less error prone code.
 
@@ -87,21 +130,21 @@ POST api/docusign/final_certificate
 
 We have also added an authentication middleware for role based access control of our APIs. Roles can be "CB", "FSC", "ASI", or "Applicant". The following is achieved:
 
-- Only CB auditor can add an evaluation comment. These evaluations are only visible to CB, FSC, and ASI.
-- Only CB auditor can issue a certificate and update a certificate.
-- Both CB auditor and CoC applicant can make comments back and forth on evidences. As shown in the chat box feature of our UI.
+- Only a CB auditor can add an evaluation comment. These evaluations are only visible to CB, FSC, and ASI.
+- Only a CB auditor can issue a certificate and update a certificate.
+- Both the CB auditor and the CoC applicant can chat freely on evidences. As shown in the chat box feature of our UI.
 
 In addition, we have integrated with DocuSign's eSignature APIs. The CoC applicant is required to sign the FSC Trademark License Agreement and the CB auditor is required to sign the FSC Certificate using embedded signing ceremonies.
 
 For our demo, the server is deployed to AWS.
 
-### Blockchain microservice
+## Blockchain microservice
 
 Simply relying on an centralized database such as Microsoft Dynamics isn't enough. We have decided to take advantage of blockchain technology and add an immutable source of truth for each certificate issued by the FSC.
 
 Our blockchain microservice is built on top of Hyperledger Fabric. Hyperledger Fabric is an open source private permissioned blockchain framework. The microservice's server is built with Node.js and Express. The server side code is written in Typescript. The server calls Hyperledger Fabric's Contract APIs to communicate with the blockchain network.
 
-The smart contract chaincode is written in Typescript as well. The smart contract consists of 4 functions: **create certificate, read certificate, delete certificate, and update existing certificate's status to "Issued"**. The smart contract is ready to be hosted on AWS's Amazon Managed Blockchain service.
+The smart contract chaincode is written in Typescript as well. It is ready to be hosted on a managed blockchain service such as the Amazon Managed Blockchain service.
 
 Certificate object in the blockchain ledger:
 
@@ -118,28 +161,24 @@ export class Certificate {
 }
 ```
 
-The microservice exposes **3 REST APIs**, called by the backend server:
+The microservice server exposes **REST APIs**, called by the backend server:
 
 ```
-Add a certificate to the blockchain's world state DB
+Add a certificate to the blockchain ledger
 POST api/blockchain/certificates
-
-Update a certificate's status to "Issued" in the world state DB
-POST api/blockchain/certificates/:certificateID/issue
-
-Get a certificate back
-GET  api/blockchain/certificates/:certificateID
 ```
 
-We have made it optional for the backend server to connect to the blockchain microservice. In the backend server, the config setting is the `enable_blockchain` field in `src/config/config.ts`. After the chaincode is deployed to AWS, this option can be turned on, and the microservice's server can be started. When this is enabled, the backend server will call the `POST api/blockchain/certificates` API when creating a certificate in Microsoft Dynamics CRM DB, which will create a record in the blockchain ledger. It will also call the `POST api/blockchain/certificates/:certificateID/issue` API when updating the certificate's status in Dynamics DB.
+We have made it optional for the backend server to connect to the blockchain microservice. In the backend server, the config setting is the `enable_blockchain` field in `src/config/config.ts`. After the chaincode is deployed to a managed blockchain service, this option can be turned on, and the microservice's server can be started. When this is enabled, the backend server can call the `POST api/blockchain/certificates` API when updating the certificate's status to "issued" in Microsoft Dynamics. This creates a certificate in the immutable ledger.
 
 ## What's next for this project
 
 We are proud to have gotten this far in our spare time in 2 months. However, there are a few improvements to be made if the FSC would like to use it in production.
 
-- Deploy smart contract chaincode to a managed service.
-- Enhance authentication and restrict access to blockchain microservice APIs.
+- On the frontend, implement a more seamless integration with google drive which allows users to drag and drop files, and directly add evaluations in the form of annotations in the file view.
+- Since there are multiple actors in this certification process, use of notifications and email alerts would help make the process more efficient.
+- Deploy the smart contract chaincode to a managed service.
 - Add additional features to the smart contract to allow more companies in the supply chain to participate.
+- Enhance authentication and restrict access to blockchain microservice APIs.
 
 Thank you Docusign and FSC for the opportunity to learn, give back, and compete in this hackathon.
 

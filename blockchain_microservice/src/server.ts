@@ -11,5 +11,5 @@ enrollAdmin();
 
 const PORT = process.env.PORT || 3333;
 app.listen(PORT, () =>
-  console.log(`Blockchain backend app started on port ${PORT}`)
+  console.log(`Blockchain service started on port ${PORT}`)
 );

@@ -82,25 +82,6 @@ router.post("/", auth, async (req: CustomRequest, res: Response) => {
       });
     }
 
-    // Add to blockchain ledger
-    if (enable_blockchain) {
-      const bcURL = blockchain_server_url + "/api/blockchain/certificates";
-      let bcReqBody = {
-        certificateID: req.body.cert_number,
-        type: "Multisite certificate",
-        company: req.body.ch_account_id,
-        issuer: req.body.cb_account_id,
-      };
-
-      const response = await axios.post(bcURL, bcReqBody);
-
-      if (response.data.error) {
-        return res.status(404).json({
-          errors: [{ msg: response.data.error }],
-        });
-      }
-    }
-
     return res.status(200).json({ msg: "Add certification success" });
   } catch (err) {
     res.status(500).send(err);
@@ -151,14 +132,18 @@ router.post(
         });
       }
 
-      // Update certificate status in blockchain ledger
+      // Add to blockchain ledger
+      // A blockchain network must be started before this can be used
       if (enable_blockchain) {
-        const bcURL =
-          blockchain_server_url +
-          "/api/blockchain/certificates/" +
-          req.body.fsc_certificatenumber +
-          "/issue";
-        const response = await axios.post(bcURL);
+        const bcURL = blockchain_server_url + "/api/blockchain/certificates";
+        let bcReqBody = {
+          certificateID: req.params.certificate_id,
+          type: "Multisite certificate",
+          company: req.body.ch_account_id,
+          issuer: req.body.cb_account_id,
+        };
+
+        const response = await axios.post(bcURL, bcReqBody);
 
         if (response.data.error) {
           return res.status(404).json({

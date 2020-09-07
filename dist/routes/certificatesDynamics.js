@@ -74,22 +74,6 @@ router.post("/", auth_1.default, async (req, res) => {
                 errors: [{ msg: response.data.error }],
             });
         }
-        // Add to blockchain ledger
-        if (config_2.enable_blockchain) {
-            const bcURL = config_2.blockchain_server_url + "/api/blockchain/certificates";
-            let bcReqBody = {
-                certificateID: req.body.cert_number,
-                type: "Multisite certificate",
-                company: req.body.ch_account_id,
-                issuer: req.body.cb_account_id,
-            };
-            const response = await axios_1.default.post(bcURL, bcReqBody);
-            if (response.data.error) {
-                return res.status(404).json({
-                    errors: [{ msg: response.data.error }],
-                });
-            }
-        }
         return res.status(200).json({ msg: "Add certification success" });
     }
     catch (err) {
@@ -129,13 +113,17 @@ router.post("/:certificate_id/issue", auth_1.default, async (req, res) => {
                 errors: [{ msg: response.data.error }],
             });
         }
-        // Update certificate status in blockchain ledger
+        // Add to blockchain ledger
+        // A blockchain network must be started before this can be used
         if (config_2.enable_blockchain) {
-            const bcURL = config_2.blockchain_server_url +
-                "/api/blockchain/certificates/" +
-                req.body.fsc_certificatenumber +
-                "/issue";
-            const response = await axios_1.default.post(bcURL);
+            const bcURL = config_2.blockchain_server_url + "/api/blockchain/certificates";
+            let bcReqBody = {
+                certificateID: req.params.certificate_id,
+                type: "Multisite certificate",
+                company: req.body.ch_account_id,
+                issuer: req.body.cb_account_id,
+            };
+            const response = await axios_1.default.post(bcURL, bcReqBody);
             if (response.data.error) {
                 return res.status(404).json({
                     errors: [{ msg: response.data.error }],

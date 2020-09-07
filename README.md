@@ -202,16 +202,7 @@ CoC company representative:
 Email (case sensitive): Applicant@tree.org
 Password: password
 
-### Local environment
-
-To start the UI:
-
-```
-cd frontend_app
-tsc
-npm install
-npm run start
-```
+### Local environment development mode
 
 To start the backend server
 
@@ -219,5 +210,9 @@ To start the backend server
 npm install
 npm run server
 ```
+
+[Frontend repo](https://github.com/axcasella/docusign_fsc_ui)
+
+[Blockchain microservice repo](https://github.com/axcasella/fsc_blockchain_microservice)
 
 Checkout our demo video on [Youtube](https://www.youtube.com/watch?v=NoS7zAkZ2Gc&feature=youtu.be)!

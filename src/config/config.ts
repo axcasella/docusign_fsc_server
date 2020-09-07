@@ -5,7 +5,7 @@ export const mongoDBUrl =
   "mongodb+srv://admin:adminpassword@cluster0.hamzq.mongodb.net/docusign_fsc?retryWrites=true&w=majority";
 // Dynamics
 export const dynamicsURL =
-  "https://greenblocks.api.crm.dynamics.com/api/data/v9.1";
+  "https://greenblocks3.api.crm.dynamics.com/api/data/v9.1";
 // AD
 export const azureADURL =
   "https://login.microsoftonline.com/8df37d69-8742-46d2-8a7d-d5e27cbc4131/oauth2/token";

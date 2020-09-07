@@ -195,12 +195,18 @@ Thank you Docusign and FSC for the opportunity to learn, give back, and compete 
 Our UI is live at: http://docusignfsc.s3-website-us-east-1.amazonaws.com/login
 
 Auditor:
+
+```
 Email (case sensitive): cb@cb.org
 Password: password
+```
 
 CoC company representative:
+
+```
 Email (case sensitive): Applicant@tree.org
 Password: password
+```
 
 ### Local environment development mode
 
